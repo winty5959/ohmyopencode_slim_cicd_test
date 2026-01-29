@@ -23,16 +23,14 @@
 
 GitHub Actions에서 Azure에 배포하기 위해 Deployment Center에서 GitHub 연동을 설정합니다. Azure는 자동으로 GitHub Actions 워크플로우를 생성해줍니다.
 
-## 4단계: 환경 변수 설정
-
-Azure App Service의 Configuration 섹션에서 다음을 설정합니다:
+Azure App Service 환경변수 세팅을 통하여 다음을 설정합니다:
 
 - `SECRET_KEY`: Django 시크릿 키
 - `DATABASE_URL`: PostgreSQL 연결 문자열
 - `ALLOWED_HOSTS`: 앱 도메인
 - `DEBUG`: False (프로덕션 환경)
 
-## 5단계: 배포 테스트
+## 4단계: 배포 테스트
 
 코드를 수정하고 master 브랜치에 push하면 GitHub Actions가 자동으로 테스트를 실행하고 Azure에 배포하는 과정을 확인합니다.
 
