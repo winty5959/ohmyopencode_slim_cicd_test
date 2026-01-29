@@ -1,5 +1,7 @@
 # Django Blog (CI/CD 실습)
 
+상위 문서(레포 루트 기준 CI/CD + Azure 로그인/배포 가이드): `../README.md`
+
 ## 로컬 실행 (Docker: 앱+DB)
 
 1) 환경변수 파일 준비
