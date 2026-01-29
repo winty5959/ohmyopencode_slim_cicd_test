@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+
+# env
+.env
+
+# static/media build artifacts
+staticfiles/
+
+# Local test/browser artifacts
+e2e_artifacts/
+*.webm

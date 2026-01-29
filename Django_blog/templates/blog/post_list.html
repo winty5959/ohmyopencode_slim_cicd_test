@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Posts · Blog{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h1 class="h3 fw-bold mb-0">Latest Posts</h1>
+  <a class="btn btn-outline-primary" href="{% url 'blog:post_create' %}">
+    <i class="bi bi-plus-lg me-1"></i> New Post
+  </a>
+</div>
+
+<div class="row g-4">
+  {% for post in posts %}
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold">{{ post.title }}</h5>
+        <p class="card-text text-muted small mb-2">
+          <i class="bi bi-calendar3 me-1"></i>{{ post.created_at|date:"Y.m.d" }}
+        </p>
+        <p class="card-text text-secondary">{{ post.content|truncatechars:120 }}</p>
+      </div>
+      <div class="card-footer bg-white border-0">
+        <a href="{% url 'blog:post_detail' post.pk %}" class="btn btn-sm btn-outline-dark">Read more</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="alert alert-light border">No posts yet.</div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if is_paginated %}
+  <nav class="mt-5" aria-label="Pagination">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+      {% endif %}
+
+      <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ paginator.num_pages }}</span></li>
+
+      {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">Next</span></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
+{% endblock %}

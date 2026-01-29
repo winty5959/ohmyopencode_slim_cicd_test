@@ -1,0 +1,106 @@
+name: django-ci-cd
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  APP_DIR: "Django_blog"
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.APP_DIR }}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: blogdb
+          POSTGRES_USER: bloguser
+          POSTGRES_PASSWORD: blogpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U bloguser -d blogdb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: ${{ env.APP_DIR }}/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run migrations + tests
+        env:
+          DEBUG: "1"
+          DATABASE_URL: postgres://bloguser:blogpass@localhost:5432/blogdb
+        run: |
+          python manage.py migrate
+          pytest
+
+      - name: Package app for deploy
+        run: |
+          zip -r app.zip . \
+            -x "*.git*" \
+            -x "**/__pycache__/*" \
+            -x "**/*.pyc" \
+            -x ".pytest_cache/*" \
+            -x "e2e_artifacts/*" \
+            -x "staticfiles/*" \
+            -x ".env"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cicd-app
+          path: ${{ env.APP_DIR }}/app.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: ci
+    # Azure 정보/시크릿이 준비되기 전까지는 자동으로 스킵됩니다.
+    if: >-
+      ${{
+        secrets.AZURE_WEBAPP_NAME != '' &&
+        secrets.AZURE_CLIENT_ID != '' &&
+        secrets.AZURE_TENANT_ID != '' &&
+        secrets.AZURE_SUBSCRIPTION_ID != ''
+      }}
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cicd-app
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          package: app.zip

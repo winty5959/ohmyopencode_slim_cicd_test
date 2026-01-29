@@ -1,0 +1,25 @@
+# Repo root .gitignore (repo root = CICD/)
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+
+# OS
+.DS_Store
+
+# env (never commit secrets)
+.env
+**/.env
+
+# Django
+*.sqlite3
+staticfiles/
+**/staticfiles/
+
+# Local test/browser artifacts (do not commit)
+e2e_artifacts/
+**/e2e_artifacts/
+*.webm
