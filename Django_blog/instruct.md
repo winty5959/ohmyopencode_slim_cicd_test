@@ -46,5 +46,3 @@ Azure App Service의 Configuration 섹션에서 다음을 설정합니다:
 | **App Service** | 웹 애플리케이션 실행 환경 | Python 3.11 런타임 |
 | **PostgreSQL Flexible Server** | 데이터베이스 | Burstable B1ms (1 vCore, 2GB RAM) |
 | **Storage Account** (선택사항) | 정적/미디어 파일 저장 | Standard LRS |
-
-==== 안농 ====
